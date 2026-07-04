@@ -9,7 +9,7 @@ gc()
 
 dir.create("results", showWarnings = FALSE, recursive = TRUE)
 
-bmi_file <- "data/gwas/bmi_top_snps.txt.gz"
+bmi_file <- "data/gwas/bmi.txt.gz"
 gout_file <- "data/gwas/gout_summary_stats.txt.gz"
 ld_reference <- "data/reference/1000G_EUR"
 plink_bin <- get_plink_exe()
