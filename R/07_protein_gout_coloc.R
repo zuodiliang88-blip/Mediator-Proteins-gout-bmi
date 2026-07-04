@@ -71,5 +71,5 @@ check_dataset(pqtl_form)
 check_dataset(gwas_form)
 
 coloc_res <- coloc.abf(dataset1 = pqtl_form, dataset2 = gwas_form)
-write.table(as.data.frame(t(coloc_res$summary)), "results/06_protein_gout_coloc_summary.tsv", sep = "\t", quote = FALSE, row.names = FALSE)
-write.table(coloc_res$results, "results/06_protein_gout_coloc_snp_results.tsv", sep = "\t", quote = FALSE, row.names = FALSE)
+write.table(as.data.frame(t(coloc_res$summary)), "results/07_protein_gout_coloc_summary.tsv", sep = "\t", quote = FALSE, row.names = FALSE)
+write.table(coloc_res$results, "results/07_protein_gout_coloc_snp_results.tsv", sep = "\t", quote = FALSE, row.names = FALSE)

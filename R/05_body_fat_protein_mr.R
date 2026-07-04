@@ -92,6 +92,6 @@ for (file_name in protein_files) {
   })
 }
 
-write.table(mr_results, "results/03_body_fat_protein_mr_results.tsv", sep = "\t", quote = FALSE, row.names = FALSE)
-write.table(heterogeneity, "results/03_body_fat_protein_heterogeneity.tsv", sep = "\t", quote = FALSE, row.names = FALSE)
-write.table(pleiotropy, "results/03_body_fat_protein_pleiotropy.tsv", sep = "\t", quote = FALSE, row.names = FALSE)
+write.table(mr_results, "results/05_body_fat_protein_mr_results.tsv", sep = "\t", quote = FALSE, row.names = FALSE)
+write.table(heterogeneity, "results/05_body_fat_protein_heterogeneity.tsv", sep = "\t", quote = FALSE, row.names = FALSE)
+write.table(pleiotropy, "results/05_body_fat_protein_pleiotropy.tsv", sep = "\t", quote = FALSE, row.names = FALSE)

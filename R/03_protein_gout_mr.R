@@ -86,6 +86,6 @@ for (file_name in protein_files) {
   })
 }
 
-write.table(mr_results, "results/02_protein_gout_mr_results.tsv", sep = "\t", quote = FALSE, row.names = FALSE)
-write.table(heterogeneity, "results/02_protein_gout_heterogeneity.tsv", sep = "\t", quote = FALSE, row.names = FALSE)
-write.table(pleiotropy, "results/02_protein_gout_pleiotropy.tsv", sep = "\t", quote = FALSE, row.names = FALSE)
+write.table(mr_results, "results/03_protein_gout_mr_results.tsv", sep = "\t", quote = FALSE, row.names = FALSE)
+write.table(heterogeneity, "results/03_protein_gout_heterogeneity.tsv", sep = "\t", quote = FALSE, row.names = FALSE)
+write.table(pleiotropy, "results/03_protein_gout_pleiotropy.tsv", sep = "\t", quote = FALSE, row.names = FALSE)

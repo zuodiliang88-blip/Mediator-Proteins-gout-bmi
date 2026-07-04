@@ -17,7 +17,7 @@ death_file <- "data/ukb/death_date.csv"
 loss_file <- "data/ukb/loss_to_follow_up.csv"
 
 end_of_followup <- as.Date("2022-10-30")
-selected_proteins <- c("ADH1B", "AP3B1", "APOE", "ENTPD6", "GRP", "RBP1")
+selected_proteins <- c("INHBB", "INHBC")
 
 gout <- fread(gout_file)
 bmi <- read_csv(bmi_file, show_col_types = FALSE)
@@ -83,7 +83,7 @@ bmi_coef$lower_bound <- bmi_ci[, 1]
 bmi_coef$upper_bound <- bmi_ci[, 2]
 bmi_coef$Case <- sum(bmi_gout$status == 1)
 bmi_coef$total <- nrow(bmi_gout)
-write.table(bmi_coef, "results/07_bmi_gout_cox.tsv", sep = "\t", quote = FALSE)
+write.table(bmi_coef, "results/08_bmi_gout_cox.tsv", sep = "\t", quote = FALSE)
 
 # BMI and protein linear models.
 linear_results <- data.frame()
@@ -104,7 +104,7 @@ for (j in 2:ncol(protein)) {
   res$protein <- names(protein)[j]
   linear_results <- rbind(linear_results, res)
 }
-write.table(linear_results, "results/07_bmi_protein_linear.tsv", sep = "\t", quote = FALSE, row.names = FALSE)
+write.table(linear_results, "results/08_bmi_protein_linear.tsv", sep = "\t", quote = FALSE, row.names = FALSE)
 
 # Protein and incident gout Cox models.
 protein_cox_results <- data.frame()
@@ -130,4 +130,4 @@ for (j in 2:ncol(protein)) {
   res$protein <- names(protein)[j]
   protein_cox_results <- rbind(protein_cox_results, res)
 }
-write.table(protein_cox_results, "results/07_protein_gout_cox.tsv", sep = "\t", quote = FALSE, row.names = FALSE)
+write.table(protein_cox_results, "results/08_protein_gout_cox.tsv", sep = "\t", quote = FALSE, row.names = FALSE)
