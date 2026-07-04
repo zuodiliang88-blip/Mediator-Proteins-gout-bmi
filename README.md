@@ -14,6 +14,8 @@ This directory contains reviewer-facing analysis scripts for the manuscript. The
 - `R/08_ukb_association_models.R`: UK Biobank Cox and linear association models.
 - `scripts/09_smr_gtex.sh`: SMR analysis across GTEx tissues.
 
+The observational association script uses `INHBB` and `INHBC` as the selected Olink proteins.
+
 ## Expected Input Folders
 
 Place input files under the following relative directories before running:

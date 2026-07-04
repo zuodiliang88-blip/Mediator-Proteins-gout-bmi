@@ -92,7 +92,8 @@ for (j in 2:ncol(protein)) {
   colnames(exposure)[2] <- "protein"
   exposure <- na.omit(exposure)
 
-  dat <- inner_join(covariates, exposure, by = "eid")
+  dat <- inner_join(covariates, bmi, by = "eid") %>%
+    inner_join(exposure, by = "eid")
   fit <- lm(BMI ~ protein + sex + age + Ethnicity + TDindex + MET + alcohol + smoking + education, data = dat)
 
   res <- data.frame(summary(fit)$coefficients)
