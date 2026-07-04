@@ -22,6 +22,7 @@ selected_proteins <- c("INHBB", "INHBC")
 gout <- fread(gout_file)
 bmi <- read_csv(bmi_file, show_col_types = FALSE)
 colnames(bmi)[2] <- "BMI"
+bmi <- bmi[, c("eid", "BMI")]
 bmi <- na.omit(bmi)
 
 protein <- fread(protein_file)
@@ -33,6 +34,7 @@ protein <- data.frame(protein)
 protein <- protein[, c("eid", selected_proteins)]
 
 covariates <- read_csv(covariate_file, show_col_types = FALSE)
+covariates <- covariates %>% select(-any_of("BMI"))
 factor_vars <- c("sex", "Ethnicity", "house", "alcohol", "smoking", "education",
                  "hypertension", "heartFailure", "renalFailure", "asthma",
                  "dementia", "MI", "stroke", "copd", "diabetes", "healthy_diet")
