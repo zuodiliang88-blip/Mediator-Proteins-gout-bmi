@@ -17,6 +17,7 @@ protein_files <- file.path(protein_dir, readLines(protein_list_file))
 mr_results <- data.frame()
 heterogeneity <- data.frame()
 pleiotropy <- data.frame()
+harmonised_inputs <- data.frame()
 
 gout_out <- read_outcome_data(
   filename = gout_file,
@@ -58,10 +59,15 @@ for (file_name in protein_files) {
     )
 
     dat$id.outcome <- "gout"
+    # Match all_code/step2_gou_new.R: this function annotates direction.
+    # The original analysis subsets mr_keep, not steiger_dir. In the saved
+    # 322-assay analysis, all 1,026 retained instruments have steiger_dir=TRUE.
     dat <- steiger_filtering(dat)
     dat <- subset(dat, mr_keep == TRUE)
 
     protein_id <- tools::file_path_sans_ext(basename(file_name))
+    dat$assay_file <- basename(file_name)
+    harmonised_inputs <- bind_rows(harmonised_inputs, dat)
 
     if (nrow(dat) >= 1) {
       res <- generate_odds_ratios(mr(dat))
@@ -89,3 +95,5 @@ for (file_name in protein_files) {
 write.table(mr_results, "results/03_protein_gout_mr_results.tsv", sep = "\t", quote = FALSE, row.names = FALSE)
 write.table(heterogeneity, "results/03_protein_gout_heterogeneity.tsv", sep = "\t", quote = FALSE, row.names = FALSE)
 write.table(pleiotropy, "results/03_protein_gout_pleiotropy.tsv", sep = "\t", quote = FALSE, row.names = FALSE)
+
+write.table(harmonised_inputs, "results/03_harmonised_input_with_steiger.tsv", sep = "\t", quote = FALSE, row.names = FALSE)

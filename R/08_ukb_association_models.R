@@ -70,7 +70,9 @@ analysis_time <- full_join(controls, cases) %>%
 analysis_base <- inner_join(analysis_time, covariates, by = "eid") %>%
   anti_join(loss, by = "eid")
 
-# BMI and incident gout.
+# BMI and incident gout. This formula reproduces ST12 and the saved
+# BMI_gout_cox_RESULT.csv; cox/liner_cox.R also contains a different extended
+# BMI model. These models must not be presented as one identical analysis.
 bmi_gout <- inner_join(analysis_base, bmi, by = "eid")
 bmi_cox <- coxph(Surv(time, status) ~ BMI + sex + age + Ethnicity + TDindex + MET +
                    alcohol + smoking + education + hypertension + renalFailure +
@@ -83,9 +85,13 @@ bmi_ci <- data.frame(exp(confint(bmi_cox, level = 0.95)))
 bmi_coef$exp_coef <- exp(bmi_coef[, 1])
 bmi_coef$lower_bound <- bmi_ci[, 1]
 bmi_coef$upper_bound <- bmi_ci[, 2]
-bmi_coef$Case <- sum(bmi_gout$status == 1)
-bmi_coef$total <- nrow(bmi_gout)
+bmi_coef$Case <- bmi_cox$nevent
+bmi_coef$total <- bmi_cox$n
 write.table(bmi_coef, "results/08_bmi_gout_cox.tsv", sep = "\t", quote = FALSE)
+
+# Diagnostics added for reporting; the fitted author models are unchanged.
+write.table(as.data.frame(cox.zph(bmi_cox)$table),
+            "results/08_bmi_gout_ph_test.tsv", sep = "\t", quote = FALSE)
 
 # BMI and protein linear models.
 linear_results <- data.frame()
@@ -96,14 +102,18 @@ for (j in 2:ncol(protein)) {
 
   dat <- inner_join(covariates, bmi, by = "eid") %>%
     inner_join(exposure, by = "eid")
-  fit <- lm(BMI ~ protein + sex + age + Ethnicity + TDindex + MET + alcohol + smoking + education, data = dat)
+  # Authoritative formula: gout_bmi/cox/liner_cox.R (protein is the outcome).
+  fit <- lm(protein ~ BMI + sex + age + Ethnicity + TDindex + MET + alcohol +
+              smoking + education + hypertension + renalFailure + diabetes +
+              healthy_diet + ua + hdl + ldl + CRP + glucose + Cholesterol +
+              HbA1c + triglyceride + creatinine, data = dat)
 
   res <- data.frame(summary(fit)$coefficients)
   ci <- data.frame(confint(fit, level = 0.95))
   res$variable <- rownames(res)
   res$lower <- ci[, 1]
   res$upper <- ci[, 2]
-  res$total <- nrow(dat)
+  res$total <- nobs(fit)
   res$protein <- names(protein)[j]
   linear_results <- rbind(linear_results, res)
 }
@@ -128,9 +138,12 @@ for (j in 2:ncol(protein)) {
   res$exp_coef <- exp(res[, 1])
   res$lower_bound <- ci[, 1]
   res$upper_bound <- ci[, 2]
-  res$Case <- sum(dat$status == 1)
-  res$total <- nrow(dat)
+  res$Case <- fit$nevent
+  res$total <- fit$n
   res$protein <- names(protein)[j]
   protein_cox_results <- rbind(protein_cox_results, res)
+  write.table(as.data.frame(cox.zph(fit)$table),
+              paste0("results/08_", names(protein)[j], "_gout_ph_test.tsv"),
+              sep = "\t", quote = FALSE)
 }
 write.table(protein_cox_results, "results/08_protein_gout_cox.tsv", sep = "\t", quote = FALSE, row.names = FALSE)

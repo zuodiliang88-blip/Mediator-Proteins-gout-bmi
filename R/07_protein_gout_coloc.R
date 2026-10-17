@@ -38,7 +38,8 @@ gwas_region <- gwas[gwas$SNP %in% shared_snps, ]
 
 dat <- merge(qtl_region, gwas_region, by = "SNP", suffixes = c("_pqtl", "_gwas"))
 
-# Harmonise allele orientation.
+# Harmonise allele orientation for audit.
+dat$beta_gwas_raw <- dat$beta_gwas
 swap <- dat$A1_pqtl == dat$A2_gwas & dat$A2_pqtl == dat$A1_gwas
 dat$beta_gwas[swap] <- -dat$beta_gwas[swap]
 dat$A1_gwas[swap] <- dat$A1_pqtl[swap]
@@ -59,11 +60,12 @@ pqtl_form <- list(
 
 gwas_form <- list(
   snp = dat$SNP,
-  beta = dat$beta_gwas,
+  # Preserve the actual all_code/coloc.R inputs to the ABF calculation.
+  # This source uses raw beta_gwas; allele-aligned values are retained below
+  # for audit. With supplied beta/varbeta, coloc does not require case fraction.
+  pvalues = dat$p_gwas,
+  beta = dat$beta_gwas_raw,
   varbeta = dat$varbeta_gwas,
-  MAF = dat$MAF_gwas,
-  N = dat$n_gwas,
-  s = unique(dat$s)[1],
   type = "cc"
 )
 
