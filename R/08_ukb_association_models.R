@@ -1,3 +1,4 @@
+# Requires approved UK Biobank access in an authorised analysis environment.
 library(readr)
 library(dplyr)
 library(data.table)
@@ -55,24 +56,19 @@ followup$minTime <- as.Date(followup$minTime)
 followup[is.na(followup$minTime), "minTime"] <- as.Date("3000-01-01")
 followup <- na.omit(followup)
 
-controls <- filter(followup, minTime > end_of_followup)
-controls$status <- 0
-controls$minTime <- end_of_followup
-cases <- anti_join(followup, controls, by = "eid")
-cases$status <- 1
-
-analysis_time <- full_join(controls, cases) %>%
-  mutate(enddate = pmin(as.Date(date_of_death), as.Date(minTime)),
+# Define the event and follow-up end consistently.
+analysis_time <- followup %>%
+  mutate(enddate = pmin(date_of_death, minTime, end_of_followup),
+         status = as.integer(minTime <= end_of_followup & minTime <= date_of_death),
          time = as.numeric(difftime(enddate, beginTime, units = "days")) / 365.25) %>%
   filter(time > 0) %>%
   select(eid, status, time)
 
+# Retain the original author analysis exclusion rule for recorded loss to follow-up.
 analysis_base <- inner_join(analysis_time, covariates, by = "eid") %>%
   anti_join(loss, by = "eid")
 
-# BMI and incident gout. This formula reproduces ST12 and the saved
-# BMI_gout_cox_RESULT.csv; cox/liner_cox.R also contains a different extended
-# BMI model. These models must not be presented as one identical analysis.
+# BMI and incident gout (ST12 model).
 bmi_gout <- inner_join(analysis_base, bmi, by = "eid")
 bmi_cox <- coxph(Surv(time, status) ~ BMI + sex + age + Ethnicity + TDindex + MET +
                    alcohol + smoking + education + hypertension + renalFailure +
@@ -89,7 +85,7 @@ bmi_coef$Case <- bmi_cox$nevent
 bmi_coef$total <- bmi_cox$n
 write.table(bmi_coef, "results/08_bmi_gout_cox.tsv", sep = "\t", quote = FALSE)
 
-# Diagnostics added for reporting; the fitted author models are unchanged.
+# Proportional hazards diagnostic.
 write.table(as.data.frame(cox.zph(bmi_cox)$table),
             "results/08_bmi_gout_ph_test.tsv", sep = "\t", quote = FALSE)
 
@@ -100,9 +96,8 @@ for (j in 2:ncol(protein)) {
   colnames(exposure)[2] <- "protein"
   exposure <- na.omit(exposure)
 
-  dat <- inner_join(covariates, bmi, by = "eid") %>%
-    inner_join(exposure, by = "eid")
-  # Authoritative formula: gout_bmi/cox/liner_cox.R (protein is the outcome).
+  dat <- inner_join(bmi_gout, exposure, by = "eid")
+  # Protein is the outcome; use the original analysis population.
   fit <- lm(protein ~ BMI + sex + age + Ethnicity + TDindex + MET + alcohol +
               smoking + education + hypertension + renalFailure + diabetes +
               healthy_diet + ua + hdl + ldl + CRP + glucose + Cholesterol +
